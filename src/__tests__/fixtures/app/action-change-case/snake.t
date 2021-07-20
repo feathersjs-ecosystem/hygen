@@ -1,4 +1,4 @@
 ---
 to: foo/<%= name %>/bar
 ---
-<%= h.changeCase.snake(name) %>
+<%= h.changeCase.snakeCase(name) %>
