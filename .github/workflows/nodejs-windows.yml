@@ -1,4 +1,4 @@
-name: CI
+name: Windows CI
 
 on: [push, pull_request]
 
@@ -17,7 +17,8 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm install
-    - run: npm test
+    - run: npm i yarn -g
+    - run: yarn install
+    - run: yarn test
       env:
         CI: true
