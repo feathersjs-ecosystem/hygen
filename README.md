@@ -289,7 +289,7 @@ as a dependency and having [this kind of workflow](src/bin.ts) in your binary.
 
 ```javascript
 const { runner } = require('hygen')
-const Logger = require('hygen/lib/logger')
+const Logger = require('hygen/dist/logger')
 const path = require('path')
 const defaultTemplates = path.join(__dirname, 'templates')
 

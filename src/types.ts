@@ -14,14 +14,32 @@ export interface RenderedAction {
   attributes: any
   body: string
 }
+
+export type Arguments = Record<string, any>
+
+export type RunnerArgs = {
+  generator: string
+  action: string
+  mainAction: string
+  args: Arguments
+  subaction?: string
+  name?: string
+}
+
 export interface RunnerConfig {
   exec?: (sh: string, body: string) => void
   templates?: string
+  templateOverrides?: string[]
   cwd?: string
   logger?: Logger
   debug?: boolean
   helpers?: any
   localsDefaults?: any
+  loadHookModule?: (
+    templates: string,
+    args: RunnerArgs,
+    hooksfiles?: string[],
+  ) => HookModule
   createPrompter?: <Q, T>() => Prompter<Q, T>
 }
 
@@ -51,4 +69,19 @@ export type ParamsResult = {
   actionfolder?: string
   name?: string
   dry?: boolean
-} & object
+} & Arguments
+
+export type PromptList = any[]
+
+export interface InteractiveHook {
+  params(args: Arguments): Promise<Arguments>
+  prompt?<Q, T>(promptArgs: {
+    prompter: Prompter<Q, T>
+    inquirer: Prompter<Q, T>
+    args: Arguments
+    config: RunnerConfig
+  }): Promise<Arguments>
+  rendered?(results: ActionResult, config: RunnerConfig): Promise<ActionResult>
+}
+
+export type HookModule = PromptList | InteractiveHook | null

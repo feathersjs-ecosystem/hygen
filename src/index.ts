@@ -1,4 +1,4 @@
-import { RunnerResult, RunnerConfig } from './types'
+import { RunnerResult, RunnerConfig, RunnerArgs } from './types'
 import resolve from './config-resolver'
 import Logger from './logger'
 import engine, { ShowHelpError } from './engine'
@@ -6,7 +6,7 @@ import engine, { ShowHelpError } from './engine'
 import { printHelp, availableActions, VERSION } from './help'
 
 const runner = async (
-  argv: string[],
+  argv: RunnerArgs|string[],
   config: RunnerConfig,
 ): Promise<RunnerResult> => {
   const resolvedConfig = await resolve(config)

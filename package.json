@@ -14,7 +14,7 @@
     "build": "yarn build:lib && yarn build:changelog",
     "release": "yarn build && git commit -am 'build'; yarn version && git push --tags && git push origin master",
     "test:win32": "yarn jest --runInBand --testPathIgnorePatterns '.*metaverse-conditional.*'",
-    "test": "yarn test:code && yarn test:require",
+    "test": "yarn build:lib && yarn test:code && yarn test:require",
     "test:code": "yarn jest --runInBand",
     "test:require": "node dist/bin.timed.js; node dist/bin.timed.js; node dist/bin.timed.js init self; rm -rf _templates",
     "update-dependencies": "ncu -u",

@@ -11,4 +11,3 @@ _book
 yarn-error.log
 standalone/
 dist/
-lib/

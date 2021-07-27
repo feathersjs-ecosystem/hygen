@@ -1,5 +1,7 @@
 import fs from 'fs-extra'
-import { ActionResult, RunnerConfig } from './types'
+
+import { ActionResult, RunnerArgs, RunnerConfig } from './types'
+import { getRunnerArgs } from './arguments'
 import params from './params'
 
 class ShowHelpError extends Error {
@@ -10,14 +12,15 @@ class ShowHelpError extends Error {
 }
 
 const engine = async (
-  argv: string[],
+  argv: RunnerArgs | string[],
   config: RunnerConfig,
 ): Promise<ActionResult[]> => {
   const { cwd, templates, logger } = config
-  const args = Object.assign(await params(config, argv), { cwd })
+  const runnerArgs = getRunnerArgs(argv)
+  const args = Object.assign(await params(config, runnerArgs), { cwd })
   const { generator, action, actionfolder } = args
 
-  if (['-h', '--help'].includes(argv[0])) {
+  if (args.h || args.help) {
     logger.log(`
 Usage:
   hygen [option] GENERATOR ACTION [--name NAME] [data-options]
@@ -29,6 +32,7 @@ Options:
   }
 
   logger.log(args.dry ? '(dry mode)' : '')
+
   if (!generator) {
     throw new ShowHelpError('please specify a generator.')
   }
@@ -37,16 +41,15 @@ Options:
     throw new ShowHelpError(`please specify an action for ${generator}.`)
   }
 
-  logger.log(`Loaded templates: ${templates.replace(`${cwd}/`, '')}`)
+  if (config.debug) {
+    logger.log(`Loaded templates: ${templates.replace(`${cwd}/`, '')}`)
+  }
+
   if (!(await fs.exists(actionfolder))) {
     throw new ShowHelpError(`I can't find action '${action}' for generator '${generator}'.
 
-      You can try:
-      1. 'hygen init self' to initialize your project, and
-      2. 'hygen generator new --name ${generator}' to build the generator you wanted.
-
-      Check out the quickstart for more: http://www.hygen.io/quick-start
-      `)
+  Try installing @feathersjs/${generator} or feathers-${generator} 
+    `)
   }
 
   // lazy loading these dependencies gives a better feel once
