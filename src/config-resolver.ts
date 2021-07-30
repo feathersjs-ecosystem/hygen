@@ -28,17 +28,16 @@ export const loadHookModule = (
 }
 
 export default async (config: RunnerConfig): Promise<RunnerConfig> => {
-  const {
-    cwd,
-    templates,
-    templateOverrides = [process.env.HYGEN_TMPLS, path.join(cwd, '_templates')],
-  } = config
+  const { cwd, templates } = config
+
   const resolvedTemplates =
-    templateOverrides.find((_) => _ && fs.existsSync(_)) || templates
+    [process.env.HYGEN_TMPLS, path.join(cwd, '_templates')].find(
+      _ => _ && fs.existsSync(_),
+    ) || templates
 
   return {
-    loadHookModule,
     ...config,
+    loadHookModule,
     templates: resolvedTemplates,
     ...(await configResolver.resolve(cwd)),
   }

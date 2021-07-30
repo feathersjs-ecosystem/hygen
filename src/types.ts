@@ -29,7 +29,6 @@ export type RunnerArgs = {
 export interface RunnerConfig {
   exec?: (sh: string, body: string) => void
   templates?: string
-  templateOverrides?: string[]
   cwd?: string
   logger?: Logger
   debug?: boolean

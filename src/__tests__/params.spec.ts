@@ -1,6 +1,6 @@
 import path from 'path'
 import params from '../params'
-import { getRunnerArgs } from '../arguments'
+import { getRunnerArgs } from '../index'
 
 const fixture = (...segments) =>
   path.join(__dirname, 'fixtures', 'templates', ...segments)

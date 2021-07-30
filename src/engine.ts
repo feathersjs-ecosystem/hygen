@@ -1,7 +1,6 @@
 import fs from 'fs-extra'
 
 import { ActionResult, RunnerArgs, RunnerConfig } from './types'
-import { getRunnerArgs } from './arguments'
 import params from './params'
 
 class ShowHelpError extends Error {
@@ -12,11 +11,10 @@ class ShowHelpError extends Error {
 }
 
 const engine = async (
-  argv: RunnerArgs | string[],
+  runnerArgs: RunnerArgs,
   config: RunnerConfig,
 ): Promise<ActionResult[]> => {
   const { cwd, templates, logger } = config
-  const runnerArgs = getRunnerArgs(argv)
   const args = Object.assign(await params(config, runnerArgs), { cwd })
   const { generator, action, actionfolder } = args
 
