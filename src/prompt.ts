@@ -4,16 +4,15 @@ import {
   RunnerConfig,
   PromptList,
   RunnerArgs,
+  HookModule,
 } from './types'
 
 const prompt = (
   config: RunnerConfig,
   runnerArgs: RunnerArgs,
+  hookModule: HookModule = null,
 ): Promise<Arguments> => {
   const { args } = runnerArgs
-  const hookModule = config.loadHookModule
-    ? config.loadHookModule(config.templates, runnerArgs)
-    : null
 
   if (!hookModule) {
     return Promise.resolve({})
@@ -30,7 +29,12 @@ const prompt = (
   // everything below requires it
   const prompter = createPrompter()
   if (hooksModule.prompt) {
-    return hooksModule.prompt({ prompter, inquirer: prompter, args, config })
+    return hooksModule.prompt({
+      args,
+      config,
+      prompter,
+      inquirer: prompter,
+    })
   }
 
   return prompter.prompt(

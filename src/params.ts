@@ -1,10 +1,11 @@
 import path from 'path'
-import { RunnerConfig, ParamsResult, RunnerArgs } from './types'
+import { RunnerConfig, ParamsResult, RunnerArgs, HookModule } from './types'
 import prompt from './prompt'
 
 const params = async (
   config: RunnerConfig,
   runnerArgs: RunnerArgs,
+  hookModule: HookModule = null,
 ): Promise<ParamsResult> => {
   const { generator, action, name, mainAction, subaction } = runnerArgs
   const { templates } = config
@@ -23,7 +24,7 @@ const params = async (
     ...runnerArgs.args,
     ...(name && { name }),
   }
-  const promptArgs = await prompt(config, runnerArgs)
+  const promptArgs = await prompt(config, runnerArgs, hookModule)
 
   return {
     ...baseArgs,

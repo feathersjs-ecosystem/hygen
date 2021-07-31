@@ -2,6 +2,7 @@ import fs from 'fs-extra'
 
 import { ActionResult, RunnerArgs, RunnerConfig } from './types'
 import params from './params'
+import loadHookModule from './hookmodule'
 
 class ShowHelpError extends Error {
   constructor(message: string) {
@@ -15,7 +16,8 @@ const engine = async (
   config: RunnerConfig,
 ): Promise<ActionResult[]> => {
   const { cwd, templates, logger } = config
-  const args = Object.assign(await params(config, runnerArgs), { cwd })
+  const hookModule = loadHookModule(config, runnerArgs)
+  const args = Object.assign(await params(config, runnerArgs, hookModule), { cwd })
   const { generator, action, actionfolder } = args
 
   if (args.h || args.help) {
@@ -45,8 +47,10 @@ Options:
 
   if (!(await fs.exists(actionfolder))) {
     throw new ShowHelpError(`I can't find action '${action}' for generator '${generator}'.
-
-  Try installing @feathersjs/${generator} or feathers-${generator} 
+      You can try:
+      1. 'hygen init self' to initialize your project, and
+      2. 'hygen generator new --name ${generator}' to build the generator you wanted.
+      Check out the quickstart for more: http://www.hygen.io/quick-start
     `)
   }
 
@@ -54,7 +58,9 @@ Options:
   // a user is exploring hygen (not specifying what to execute)
   const execute = require('./execute').default
   const render = require('./render').default
-  return execute(await render(args, config), args, config)
+  const results = await execute(await render(args, config), args, config)
+
+  return results
 }
 
 export { ShowHelpError }
