@@ -7,14 +7,14 @@ const params = async (
   runnerArgs: RunnerArgs,
   hookModule: HookModule = null,
 ): Promise<ParamsResult> => {
-  const { generator, action, name, mainAction, subaction } = runnerArgs
+  const { generator, action, name, subaction } = runnerArgs
   const { templates } = config
 
   if (!generator || !action) {
     return { generator, action, templates }
   }
 
-  const actionfolder = path.join(templates, generator, mainAction)
+  const actionfolder = path.join(templates, generator, action)
   const baseArgs = {
     templates,
     actionfolder,

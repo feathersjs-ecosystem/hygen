@@ -21,7 +21,6 @@ export type RunnerArgs = {
   generator: string
   action: string
   args: Arguments
-  mainAction?: string
   subaction?: string
   name?: string
 }
@@ -45,16 +44,6 @@ export interface ResolverIO {
 
 export type ActionResult = any
 
-export interface RunnerResult {
-  success: boolean
-  time: number
-  actions: ActionResult[]
-  failure?: {
-    message: string
-    availableActions: string[]
-  }
-}
-
 export type ParamsResult = {
   templates: string
   generator: string
@@ -75,11 +64,24 @@ export interface InteractiveHook {
     args: Arguments
     config: RunnerConfig
   }): Promise<Arguments>
-  rendered?(
-    args: Arguments,
-    results: ActionResult,
-    config: RunnerConfig,
-  ): Promise<ActionResult>
+  // eslint-disable-next-line
+  rendered?(result: EngineResult, config: RunnerConfig): Promise<EngineResult>
 }
 
 export type HookModule = PromptList | InteractiveHook | null
+
+export interface EngineResult {
+  actions: ActionResult[]
+  args: ParamsResult
+  hookModule: HookModule
+}
+
+export interface RunnerResult {
+  success: boolean
+  time: number
+  actions: ActionResult[]
+  failure?: {
+    message: string
+    availableActions: string[]
+  }
+}

@@ -1,6 +1,11 @@
 import fs from 'fs-extra'
 
-import { ActionResult, RunnerArgs, RunnerConfig } from './types'
+import {
+  EngineResult,
+  InteractiveHook,
+  RunnerArgs,
+  RunnerConfig,
+} from './types'
 import params from './params'
 import loadHookModule from './hookmodule'
 
@@ -14,10 +19,12 @@ class ShowHelpError extends Error {
 const engine = async (
   runnerArgs: RunnerArgs,
   config: RunnerConfig,
-): Promise<ActionResult[]> => {
+): Promise<EngineResult> => {
   const { cwd, templates, logger } = config
   const hookModule = loadHookModule(config, runnerArgs)
-  const args = Object.assign(await params(config, runnerArgs, hookModule), { cwd })
+  const args = Object.assign(await params(config, runnerArgs, hookModule), {
+    cwd,
+  })
   const { generator, action, actionfolder } = args
 
   if (args.h || args.help) {
@@ -58,9 +65,15 @@ Options:
   // a user is exploring hygen (not specifying what to execute)
   const execute = require('./execute').default
   const render = require('./render').default
-  const results = await execute(await render(args, config), args, config)
+  const actions = await execute(await render(args, config), args, config)
+  const result: EngineResult = { args, actions, hookModule }
+  const interactiveHook = hookModule as InteractiveHook
 
-  return results
+  if (interactiveHook && interactiveHook.rendered) {
+    await interactiveHook.rendered(result, config)
+  }
+
+  return result
 }
 
 export { ShowHelpError }

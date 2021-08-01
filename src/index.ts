@@ -10,24 +10,23 @@ import { printHelp, availableActions, VERSION } from './help'
 const getRunnerArgs = (argv: RunnerArgs | string[]): RunnerArgs => {
   if (Array.isArray(argv)) {
     const parsed = yargs(argv)
-    const [generator, action, name] = parsed._
+    const [generator, _action, name] = parsed._
     const { _, ...args } = parsed
-    const [mainAction, subaction] = action.split(':')
+    const [action, subaction] = _action.split(':')
 
     return {
       generator,
       action,
-      mainAction,
       subaction,
       name,
       args,
     }
   }
 
-  const [mainAction, subaction] = argv.action.split(':')
+  const [action, subaction] = argv.action.split(':')
 
   return {
-    mainAction,
+    action,
     subaction,
     ...argv,
   }
@@ -41,7 +40,7 @@ const runner = async (
   const { templates, logger } = resolvedConfig
   try {
     const runnerArgs = getRunnerArgs(argv)
-    const actions = await engine(runnerArgs, resolvedConfig)
+    const { actions } = await engine(runnerArgs, resolvedConfig)
     return { success: true, actions, time: 0 }
   } catch (err) {
     logger.log(err.toString())
