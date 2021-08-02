@@ -1,6 +1,13 @@
 import fs from 'fs-extra'
-import { ActionResult, RunnerConfig } from './types'
+
+import {
+  EngineResult,
+  InteractiveHook,
+  RunnerArgs,
+  RunnerConfig,
+} from './types'
 import params from './params'
+import loadHookModule from './hookmodule'
 
 class ShowHelpError extends Error {
   constructor(message: string) {
@@ -10,14 +17,17 @@ class ShowHelpError extends Error {
 }
 
 const engine = async (
-  argv: string[],
+  runnerArgs: RunnerArgs,
   config: RunnerConfig,
-): Promise<ActionResult[]> => {
+): Promise<EngineResult> => {
   const { cwd, templates, logger } = config
-  const args = Object.assign(await params(config, argv), { cwd })
+  const hookModule = loadHookModule(config, runnerArgs)
+  const args = Object.assign(await params(config, runnerArgs, hookModule), {
+    cwd,
+  })
   const { generator, action, actionfolder } = args
 
-  if (['-h', '--help'].includes(argv[0])) {
+  if (args.h || args.help) {
     logger.log(`
 Usage:
   hygen [option] GENERATOR ACTION [--name NAME] [data-options]
@@ -29,6 +39,7 @@ Options:
   }
 
   logger.log(args.dry ? '(dry mode)' : '')
+
   if (!generator) {
     throw new ShowHelpError('please specify a generator.')
   }
@@ -37,23 +48,32 @@ Options:
     throw new ShowHelpError(`please specify an action for ${generator}.`)
   }
 
-  logger.log(`Loaded templates: ${templates.replace(`${cwd}/`, '')}`)
+  if (config.debug) {
+    logger.log(`Loaded templates: ${templates.replace(`${cwd}/`, '')}`)
+  }
+
   if (!(await fs.exists(actionfolder))) {
     throw new ShowHelpError(`I can't find action '${action}' for generator '${generator}'.
-
       You can try:
       1. 'hygen init self' to initialize your project, and
       2. 'hygen generator new --name ${generator}' to build the generator you wanted.
-
       Check out the quickstart for more: http://www.hygen.io/quick-start
-      `)
+    `)
   }
 
   // lazy loading these dependencies gives a better feel once
   // a user is exploring hygen (not specifying what to execute)
   const execute = require('./execute').default
   const render = require('./render').default
-  return execute(await render(args, config), args, config)
+  const actions = await execute(await render(args, config), args, config)
+  const result: EngineResult = { args, actions, hookModule }
+  const interactiveHook = hookModule as InteractiveHook
+
+  if (interactiveHook && interactiveHook.rendered) {
+    await interactiveHook.rendered(result, config)
+  }
+
+  return result
 }
 
 export { ShowHelpError }

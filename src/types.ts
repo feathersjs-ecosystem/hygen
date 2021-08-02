@@ -14,6 +14,17 @@ export interface RenderedAction {
   attributes: any
   body: string
 }
+
+export type Arguments = Record<string, any>
+
+export type RunnerArgs = {
+  generator: string
+  action: string
+  args: Arguments
+  subaction?: string
+  name?: string
+}
+
 export interface RunnerConfig {
   exec?: (sh: string, body: string) => void
   templates?: string
@@ -33,6 +44,38 @@ export interface ResolverIO {
 
 export type ActionResult = any
 
+export type ParamsResult = {
+  templates: string
+  generator: string
+  action: string
+  subaction?: string
+  actionfolder?: string
+  name?: string
+  dry?: boolean
+} & Arguments
+
+export type PromptList = any[]
+
+export interface InteractiveHook {
+  params?(args: Arguments): Promise<Arguments>
+  prompt?<Q, T>(promptArgs: {
+    prompter: Prompter<Q, T>
+    inquirer: Prompter<Q, T>
+    args: Arguments
+    config: RunnerConfig
+  }): Promise<Arguments>
+  // eslint-disable-next-line
+  rendered?(result: EngineResult, config: RunnerConfig): Promise<EngineResult>
+}
+
+export type HookModule = PromptList | InteractiveHook | null
+
+export interface EngineResult {
+  actions: ActionResult[]
+  args: ParamsResult
+  hookModule: HookModule
+}
+
 export interface RunnerResult {
   success: boolean
   time: number
@@ -42,13 +85,3 @@ export interface RunnerResult {
     availableActions: string[]
   }
 }
-
-export type ParamsResult = {
-  templates: string
-  generator: string
-  action: string
-  subaction?: string
-  actionfolder?: string
-  name?: string
-  dry?: boolean
-} & object

@@ -1,44 +1,35 @@
 import path from 'path'
-import yargs from 'yargs-parser'
-import { RunnerConfig, ParamsResult } from './types'
+import { RunnerConfig, ParamsResult, RunnerArgs, HookModule } from './types'
 import prompt from './prompt'
 
 const params = async (
-  { templates, createPrompter }: RunnerConfig,
-  externalArgv: string[],
+  config: RunnerConfig,
+  runnerArgs: RunnerArgs,
+  hookModule: HookModule = null,
 ): Promise<ParamsResult> => {
-  const argv = yargs(externalArgv)
+  const { generator, action, name, subaction } = runnerArgs
+  const { templates } = config
 
-  const [generator, action, name] = argv._
   if (!generator || !action) {
     return { generator, action, templates }
   }
-  const [mainAction, subaction] = action.split(':')
 
-  const actionfolder = path.join(templates, generator, mainAction)
+  const actionfolder = path.join(templates, generator, action)
+  const baseArgs = {
+    templates,
+    actionfolder,
+    generator,
+    action,
+    subaction,
+    ...runnerArgs.args,
+    ...(name && { name }),
+  }
+  const promptArgs = await prompt(config, runnerArgs, hookModule)
 
-  const { _, ...cleanArgv } = argv
-  const promptArgs = await prompt(createPrompter, actionfolder, {
-    // NOTE we might also want the rest of the generator/action/etc. params here
-    // but theres no usecase yet
-    ...(name ? { name } : {}),
-    ...cleanArgv,
-  })
-
-  const args = Object.assign(
-    {
-      templates,
-      actionfolder,
-      generator,
-      action,
-      subaction,
-    },
-    cleanArgv,
-    name && { name },
-    promptArgs,
-  )
-
-  return args
+  return {
+    ...baseArgs,
+    ...promptArgs,
+  }
 }
 
 export default params
