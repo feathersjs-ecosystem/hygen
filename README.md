@@ -2,10 +2,12 @@
   <img src="https://raw.githubusercontent.com/jondot/hygen/master/media/hygen.png" alt="hygen logo" width=400 />
 </h3>
 
-[![build status](https://img.shields.io/travis/jondot/hygen/master.svg)](https://travis-ci.org/jondot/hygen)
-[![npm version](https://img.shields.io/npm/v/hygen.svg)](https://www.npmjs.com/package/hygen)
+[![CI](https://github.com/feathersjs/hygen/actions/workflows/nodejs.yml/badge.svg)](https://github.com/feathersjs/hygen/actions/workflows/nodejs.yml)
+[![npm version](https://img.shields.io/npm/v/hygen.svg)](https://www.npmjs.com/package/@feathersjs/hygen)
 
 `hygen` is the simple, fast, and scalable code generator that lives _in_ your project.
+
+> __Note:__ This is a fork of Hygen used with the Feathers CLI.
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/jondot/hygen/master/media/hygen.gif" width=600/>
