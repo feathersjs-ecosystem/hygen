@@ -16,13 +16,13 @@ const params = async (
 
   const actionfolder = path.join(templates, generator, action)
   const baseArgs = {
+    ...runnerArgs.args,
+    ...(name && { name }),
     templates,
     actionfolder,
     generator,
     action,
     subaction,
-    ...runnerArgs.args,
-    ...(name && { name }),
   }
   const promptArgs = await prompt(config, runnerArgs, hookModule)
 
