@@ -1,6 +1,6 @@
 {
   "name": "@feathersjs/hygen",
-  "version": "6.2.0-feathers.0",
+  "version": "6.2.0-feathers.1",
   "main": "dist/index.js",
   "repository": "https://github.com/jondot/hygen",
   "bin": {
