@@ -56,6 +56,8 @@ const runner = async (
   }
 }
 
+export * from './types'
+
 export {
   runner,
   engine,
