@@ -5,7 +5,6 @@ const gemfile = `
     gem 'rails'
     gem 'nokogiri'
     gem 'httparty'
-
     `
 describe('injector', () => {
   it('before rails', () => {
@@ -13,6 +12,7 @@ describe('injector', () => {
       injector(
         {
           attributes: {
+            to: '',
             before: "gem 'rails'",
           },
           body: "    gem 'kamikaze' # added by hygen",
@@ -26,6 +26,7 @@ describe('injector', () => {
       injector(
         {
           attributes: {
+            to: '',
             after: "gem 'rails'",
           },
           body: "    gem 'kamikaze' # added by hygen",
@@ -39,6 +40,7 @@ describe('injector', () => {
       injector(
         {
           attributes: {
+            to: '',
             prepend: true,
           },
           body: "    gem 'kamikaze' # added by hygen",
@@ -52,6 +54,7 @@ describe('injector', () => {
       injector(
         {
           attributes: {
+            to: '',
             append: true,
           },
           body: "    gem 'kamikaze' # added by hygen",
@@ -65,7 +68,8 @@ describe('injector', () => {
       injector(
         {
           attributes: {
-            at_line: 2,
+            to: '',
+            atLine: 2,
           },
           body: "    gem 'kamikaze' # added by hygen",
         },
@@ -73,12 +77,13 @@ describe('injector', () => {
       ),
     ).toMatchSnapshot()
   })
-  it('skip_if "source" exists', () => {
+  it('skipIf "source" exists', () => {
     expect(
       injector(
         {
           attributes: {
-            skip_if: 'source',
+            to: '',
+            skipIf: 'source',
             after: "gem 'rails'",
           },
           body: "    gem 'kamikaze' # added by hygen",
@@ -87,13 +92,14 @@ describe('injector', () => {
       ),
     ).toMatchSnapshot()
   })
-  it('if eof_last is false remove empty line from the end of injection body', () => {
+  it('if eofLast is false remove empty line from the end of injection body', () => {
     expect(
       injector(
         {
           attributes: {
+            to: '',
             after: "gem 'rails'",
-            eof_last: false,
+            eofLast: false,
           },
           body: "    gem 'kamikaze' # added by hygen\n",
         },
@@ -101,13 +107,14 @@ describe('injector', () => {
       ),
     ).toMatchSnapshot()
   })
-  it('if eof_last is true insert empty line to injection body', () => {
+  it('if eofLast is true insert empty line to injection body', () => {
     expect(
       injector(
         {
           attributes: {
+            to: '',
             after: "gem 'rails'",
-            eof_last: true,
+            eofLast: true,
           },
           body: "    gem 'kamikaze' # added by hygen",
         },
@@ -120,8 +127,9 @@ describe('injector', () => {
       injector(
         {
           attributes: {
+            to: '',
             after: "rails[a-z\\:\\/\\.'\\s]*giri",
-            eof_last: false,
+            eofLast: false,
           },
           body: "    gem 'kamikaze' # added by hygen",
         },
@@ -134,8 +142,9 @@ describe('injector', () => {
       injector(
         {
           attributes: {
+            to: '',
             before: "rails[a-z\\:\\/\\.'\\s]*giri",
-            eof_last: false,
+            eofLast: false,
           },
           body: "    gem 'kamikaze' # added by hygen",
         },
@@ -143,12 +152,13 @@ describe('injector', () => {
       ),
     ).toMatchSnapshot()
   })
-  it('correctly interpret multi-line skip_if regex', () => {
+  it('correctly interpret multi-line skipIf regex', () => {
     expect(
       injector(
         {
           attributes: {
-            skip_if: "rails[a-z\\:\\/\\.'\\s]*giri",
+            to: '',
+            skipIf: "rails[a-z\\:\\/\\.'\\s]*giri",
             after: "gem 'rails'",
           },
           body: "    gem 'kamikaze' # added by hygen",

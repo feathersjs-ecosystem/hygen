@@ -1,16 +1,21 @@
-import { RenderedAction } from '../types'
 import newline from '../newline'
+
+import type { RenderedAction, RenderAttributes } from '../types'
 
 const EOLRegex = /\r?\n/
 
-const getPragmaticIndex = (pattern, lines, isBefore) => {
-  const oneLineMatchIndex = lines.findIndex(l => l.match(pattern))
+const getPragmaticIndex = (
+  pattern: string | RegExp,
+  lines: string[],
+  isBefore: boolean,
+) => {
+  const oneLineMatchIndex = lines.findIndex((l) => l.match(pattern))
 
   // joins the text and looks for line number,
   // we dont care about platform line-endings correctness other than joining/splitting
   // for all platforms
   if (oneLineMatchIndex < 0) {
-    const fullText = lines.join("\n")
+    const fullText = lines.join('\n')
     const fullMatch = fullText.match(new RegExp(pattern, 'm'))
 
     if (fullMatch && fullMatch.length) {
@@ -27,28 +32,38 @@ const getPragmaticIndex = (pattern, lines, isBefore) => {
   return oneLineMatchIndex + (isBefore ? 0 : 1)
 }
 const locations = {
-  at_line: _ => _,
-  prepend: _ => 0,
-  append: (_, lines) => lines.length - 1,
-  before: (_, lines) => getPragmaticIndex(_, lines, true),
-  after: (_, lines) => getPragmaticIndex(_, lines, false),
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  atLine: (_: number, _lines: string[]): number => _,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  prepend: (_: string, _lines: string[]): number => 0,
+  append: (_: string, lines: string[]): number => lines.length - 1,
+  before: (_: string, lines: string[]): number =>
+    getPragmaticIndex(_, lines, true),
+  after: (_: string, lines: string[]): number =>
+    getPragmaticIndex(_, lines, false),
 }
-const indexByLocation = (attributes: any, lines: string[]): number => {
-  const pair = Object.entries(attributes).find(([k, _]) => locations[k])
+
+const indexByLocation = (
+  attributes: RenderAttributes,
+  lines: string[],
+): number => {
+  const pair = Object.entries(attributes).find(([k]) => k in locations)
   if (pair) {
     const [k, v] = pair
+    // @ts-ignore
     return locations[k](v, lines)
   }
   return -1
 }
+
 const injector = (action: RenderedAction, content: string): string => {
   const {
-    attributes: { skip_if, eof_last },
+    attributes: { skipIf, eofLast },
     attributes,
     body,
   } = action
   // eslint-disable-next-line
-  const shouldSkip = skip_if && !!content.match(skip_if);
+  const shouldSkip = skipIf && !!content.match(skipIf);
 
   if (!shouldSkip) {
     //
@@ -64,9 +79,9 @@ const injector = (action: RenderedAction, content: string): string => {
     const idx = indexByLocation(attributes, lines)
 
     // eslint-disable-next-line
-    const trimEOF = idx >= 0 && eof_last === false && /\r?\n$/.test(body);
+    const trimEOF = idx >= 0 && eofLast === false && /\r?\n$/.test(body);
     // eslint-disable-next-line
-    const insertEOF = idx >= 0 && eof_last === true && !/\r?\n$/.test(body);
+    const insertEOF = idx >= 0 && eofLast === true && !/\r?\n$/.test(body);
 
     if (trimEOF) {
       lines.splice(idx, 0, body.replace(/\r?\n$/, ''))
@@ -75,10 +90,9 @@ const injector = (action: RenderedAction, content: string): string => {
     } else if (idx >= 0) {
       lines.splice(idx, 0, body)
     }
-   return lines.join(NL)
-  } else {
-    return content
+    return lines.join(NL)
   }
+  return content
 }
 
 export default injector

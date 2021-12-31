@@ -14,7 +14,7 @@ const execute = async (
     if (message) {
       messages.push(message)
     }
-    const ops = resolve(action.attributes)
+    const ops = await resolve(action.attributes)
     for (const op of ops) {
       results.push(await op(action, args, config))
     }

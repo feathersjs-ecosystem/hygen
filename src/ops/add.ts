@@ -1,9 +1,9 @@
-import { ActionResult, RunnerConfig, RenderedAction } from '../types'
-import createResult from './result'
-
 import path from 'path'
 import fs from 'fs-extra'
 import { red } from 'chalk'
+import createResult from './result'
+
+import type { ActionResult, RunnerConfig, RenderedAction } from '../types'
 
 const add = async (
   action: RenderedAction,
@@ -11,17 +11,17 @@ const add = async (
   { logger, cwd, createPrompter }: RunnerConfig,
 ): Promise<ActionResult> => {
   const {
-    attributes: { to, inject, unless_exists, force, from },
+    attributes: { to, inject, unlessExists, force, from },
   } = action
   const result = createResult('add', to)
-  const prompter = createPrompter()
+  const prompter = createPrompter<any, any>()
   if (!to || inject) {
     return result('ignored')
   }
   const absTo = path.resolve(cwd, to)
-  const shouldNotOverwrite = !force &&
-    unless_exists !== undefined && unless_exists === true
-  const fileExists = (await fs.exists(absTo))
+  const shouldNotOverwrite =
+    !force && unlessExists !== undefined && unlessExists === true
+  const fileExists = fs.existsSync(absTo)
 
   if (shouldNotOverwrite && fileExists) {
     logger.warn(`     skipped: ${to}`)
@@ -42,7 +42,6 @@ const add = async (
       return result('skipped')
     }
   }
-
 
   if (from) {
     const from_path = path.join(args.templates, from)

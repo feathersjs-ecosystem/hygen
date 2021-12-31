@@ -5,28 +5,29 @@ const { yellow, red, green, magenta, template } = chalk
 class Logger {
   log: (message?: any, ...optionalParams: any[]) => void
 
-  constructor(log) {
+  constructor(log: (message?: any, ...optionalParams: any[]) => void) {
     this.log = log
   }
 
-  colorful(msg) {
+  colorful(msg: string): void {
     this.log(template(chalk, msg))
   }
 
-  notice(msg) {
+  notice(msg: string): void {
     this.log(magenta(msg))
   }
 
-  warn(msg) {
+  warn(msg: string): void {
     this.log(yellow(msg))
   }
 
-  err(msg) {
+  err(msg: string): void {
     this.log(red(msg))
   }
 
-  ok(msg) {
+  ok(msg: string): void {
     this.log(green(msg))
   }
 }
+
 export default Logger

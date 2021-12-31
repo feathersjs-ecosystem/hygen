@@ -1,7 +1,8 @@
-import { Logger } from './types'
 import fs from 'fs'
 import path from 'path'
 import chalk from 'chalk'
+import type { Logger } from './types'
+
 const pkg = require('../package.json')
 
 const VERSION = pkg.version
@@ -9,7 +10,7 @@ const VERSION = pkg.version
 const availableActions = (templates: string) => {
   const generators = fs
     .readdirSync(templates)
-    .filter(_ => fs.lstatSync(path.join(templates, _)).isDirectory())
+    .filter((_) => fs.lstatSync(path.join(templates, _)).isDirectory())
   return generators.reduce((acc, generator) => {
     const actions = fs.readdirSync(path.join(templates, generator))
     acc[generator] = actions

@@ -2,7 +2,7 @@ import path from 'path'
 import params from '../params'
 import { getRunnerArgs } from '../index'
 
-const fixture = (...segments) =>
+const fixture = (...segments: string[]) =>
   path.join(__dirname, 'fixtures', 'templates', ...segments)
 
 describe('params', () => {

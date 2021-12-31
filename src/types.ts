@@ -1,3 +1,5 @@
+import { ExecaReturnValue } from 'execa'
+
 export interface Logger {
   ok: (msg: string) => void
   notice: (msg: string) => void
@@ -6,32 +8,68 @@ export interface Logger {
   log: (msg: string) => void
   colorful: (msg: string) => void
 }
-export interface Prompter<Q, T> {
+
+export interface Prompter<Q = any, T = any> {
   prompt: (arg0: Q) => Promise<T>
 }
+
+export type RenderAttributes = {
+  to: string | null
+  inject?: boolean
+  skipIf?: string | RegExp
+  // locations
+  prepend?: boolean
+  append?: boolean
+  before?: string | RegExp
+  after?: string | RegExp
+  atLine?: number
+  unlessExists?: boolean
+  force?: boolean
+  from?: string
+  eofLast?: boolean
+  sh?: string
+  message?: string
+  cmd?: string
+}
+
 export interface RenderedAction {
-  file?: string
-  attributes: any
+  attributes: RenderAttributes
   body: string
 }
 
 export type Arguments = Record<string, any>
 
+export type OpType = 'inject' | 'add' | 'shell'
+export type OpStatus =
+  | 'added'
+  | 'executed'
+  | 'inject'
+  | 'ignored'
+  | 'skipped'
+  | 'error'
+
+export type PromptOptions<H = {}, Q = any, T = any> = {
+  prompter: Prompter<Q, T>
+  inquirer: Prompter<Q, T>
+  args: Arguments
+  config: RunnerConfig<H>
+}
+
 export type RunnerArgs = {
   generator: string
   action: string
-  args: Arguments
+  args?: Arguments
   subaction?: string
   name?: string
 }
 
-export interface RunnerConfig {
-  exec?: (sh: string, body: string) => void
+export interface RunnerConfig<H = {}> {
+  exec?: (sh: string, body: string) => Promise<ExecaReturnValue<string>>
   templates?: string
   cwd?: string
   logger?: Logger
   debug?: boolean
-  helpers?: any
+  helpers?: H
   localsDefaults?: any
   createPrompter?: <Q, T>() => Prompter<Q, T>
 }
@@ -56,25 +94,35 @@ export type ParamsResult = {
 
 export type PromptList = any[]
 
-export interface InteractiveHook {
+export interface InteractiveHook<H = {}> {
   params?(args: Arguments): Promise<Arguments>
-  prompt?<Q, T>(promptArgs: {
-    prompter: Prompter<Q, T>
-    inquirer: Prompter<Q, T>
-    args: Arguments
-    config: RunnerConfig
-  }): Promise<Arguments>
+  prompt?<Q, T>(promptArgs: PromptOptions<H, Q, T>): Promise<Arguments>
   // eslint-disable-next-line
-  rendered?(result: EngineResult, config: RunnerConfig): Promise<EngineResult>
+  rendered?(result: EngineResult, config: RunnerConfig<H>): Promise<EngineResult>
 }
 
-export type HookModule = PromptList | InteractiveHook | null
+export type HookModule<H = {}> = PromptList | InteractiveHook<H> | null
 
 export interface EngineResult {
   actions: ActionResult[]
   args: ParamsResult
   hookModule: HookModule
 }
+
+export type RenderFile = (context: Record<string, any>) => RenderResult
+
+export type RenderResult = RenderAttributes & {
+  body: string
+}
+
+export type GeneratorContext<H extends {}, T extends {}> = {
+  h: H
+  action: string
+  actionfolder: string
+  cwd: string
+  generator: string
+  templates: string
+} & T
 
 export interface RunnerResult {
   success: boolean

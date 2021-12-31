@@ -1,25 +1,26 @@
 import path from 'path'
-import Logger from '../logger'
+import enquirer from 'enquirer'
+import execa from 'execa'
 import { engine } from '../index'
+import Logger from '../logger'
 
 jest.mock('enquirer', () => ({
   prompt: null,
 }))
 
-const enquirer = require('enquirer')
+const logger = new Logger(() => ({}))
 
-const logger = new Logger(console.log)
-
-const createConfig = (metaDir) => ({
+const createConfig = (metaDir: string) => ({
   templates: path.join(metaDir, 'fixtures'),
   cwd: metaDir,
-  exec: (action, body) => {
+  exec: (action: any, body: any) => {
     const execOpts = body && body.length > 0 ? { input: body } : {}
-    return require('execa').command(action, { ...execOpts, shell: true })
+    return execa.command(action, { ...execOpts, shell: true })
   },
   logger,
   createPrompter: () => require('enquirer'),
 })
+
 const failPrompt = () => {
   throw new Error('set up prompt in testing')
 }
@@ -33,6 +34,7 @@ describe('engine embedding', () => {
     const promptResult = {
       email: 'hello@test.com',
     }
+    // @ts-ignore
     enquirer.prompt = () => Promise.resolve(promptResult)
 
     const config = createConfig(__dirname)

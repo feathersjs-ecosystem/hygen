@@ -1,8 +1,14 @@
 import path from 'path'
-import { RunnerConfig, ParamsResult, RunnerArgs, HookModule } from './types'
 import prompt from './prompt'
 
-const params = async (
+import type {
+  RunnerConfig,
+  ParamsResult,
+  RunnerArgs,
+  HookModule,
+} from './types'
+
+const getParams = async (
   config: RunnerConfig,
   runnerArgs: RunnerArgs,
   hookModule: HookModule = null,
@@ -32,4 +38,4 @@ const params = async (
   }
 }
 
-export default params
+export default getParams

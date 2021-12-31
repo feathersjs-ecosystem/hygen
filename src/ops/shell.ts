@@ -1,18 +1,20 @@
-import { ActionResult } from '../types'
 import createResult from './result'
 
-const notEmpty = x => x && x.length > 0
+import type { ActionResult, RenderedAction, RunnerConfig } from '../types'
+
+const notEmpty = (x: string) => x && x.length > 0
+
 const shell = async (
-  { attributes: { sh }, body },
-  args,
-  { logger, exec },
+  { attributes: { sh }, body }: RenderedAction,
+  args: any,
+  { logger, exec }: RunnerConfig,
 ): Promise<ActionResult> => {
   const result = createResult('shell', sh)
   if (notEmpty(sh)) {
     if (!args.dry) {
       try {
         await exec(sh, body)
-      } catch (error) {
+      } catch (error: any) {
         logger.err(error.stderr)
         process.exit(1)
       }

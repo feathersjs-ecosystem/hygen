@@ -1,82 +1,54 @@
-import { RenderedAction, RunnerConfig } from './types'
-import fs from 'fs-extra'
-import ejs from 'ejs'
-import fm from 'front-matter'
 import path from 'path'
 import walk from 'ignore-walk'
-import context from './context'
 
-
-// for some reason lodash/fp takes 90ms to load.
-// inline what we use here with the regular lodash.
-const map = f => arr => arr.map(f)
-const filter = f => arr => arr.filter(f)
+import type { RenderedAction, RunnerConfig, RenderResult } from './types'
 
 const ignores = [
-  'prompt.js',
-  'index.js',
+  'prompt.ts',
+  'index.ts',
   '.hygenignore',
   '.DS_Store',
   '.Spotlight-V100',
   '.Trashes',
-  'ehthumbs.db',
+  'thumbs.db',
   'Thumbs.db',
 ]
-const renderTemplate = (tmpl, locals, config) =>
-  typeof tmpl === 'string' ? ejs.render(tmpl, context(locals, config)) : tmpl
 
-async function getFiles(dir) {
+function getFiles(dir: string): string[] {
   const files = walk
-    .sync({ path: dir, ignoreFiles: ['.hygenignore'] })
-    .map(f => path.join(dir, f))
+    .sync({ path: dir, ignoreFiles: ignores })
+    .map((f) => path.join(dir, f))
   return files
 }
 
 const render = async (
   args: any,
   config: RunnerConfig,
-): Promise<RenderedAction[]> =>
-  getFiles(args.actionfolder)
-    .then(things => things.sort((a, b) => a.localeCompare(b))) // TODO: add a test to verify this sort
-    .then(filter(f => !ignores.find(ig => f.endsWith(ig)))) // TODO: add a
-    // test for ignoring prompt.js and index.js
-    .then(
-      filter(file =>
-        args.subaction
-          ? file.replace(args.actionfolder, '').match(args.subaction)
-          : true,
-      ),
-    )
-    .then(
-      map(file =>
-        fs.readFile(file).then(text => ({ file, text: text.toString() })),
-      ),
-    )
-    .then(_ => Promise.all(_))
-    .then(
-      map(({ file, text }) => ({ file, ...fm(text, { allowUnsafe: true }) })),
-    )
-    .then(
-      map(({ file, attributes, body }) => {
-        const renderedAttrs = Object.entries(attributes).reduce(
-          (obj, [key, value]) => {
-            return {
-              ...obj,
-              [key]: renderTemplate(value, args, config),
-            }
-          },
-          {},
-        )
-        return {
-          file,
-          attributes: renderedAttrs,
-          body: renderTemplate(
-            body,
-            { ...args, attributes: renderedAttrs },
-            config,
-          ),
-        }
-      }),
-    )
+): Promise<RenderedAction[]> => {
+  let files = getFiles(args.actionfolder)
+  files = files.sort((a, b) => a.localeCompare(b))
+  files = files.filter((file) =>
+    args.subaction
+      ? file.replace(args.actionfolder, '').match(args.subaction)
+      : true,
+  )
+
+  let modules = await Promise.all(files.map((file) => import(file)))
+
+  modules = modules.filter((x) => x.render)
+
+  const renderedResults: (RenderResult | undefined)[] = await Promise.all(
+    modules.map((module) => module.render({ ...args, h: config.helpers })),
+  )
+
+  return renderedResults.map((rendered) => {
+    const { body, ...attributes } = rendered
+    const result: RenderedAction = {
+      attributes,
+      body,
+    }
+    return result
+  })
+}
 
 export default render

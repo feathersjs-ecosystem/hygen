@@ -1,7 +1,7 @@
-import { RunnerConfig } from './types'
 import inflection from 'inflection'
 import * as changeCase from 'change-case'
 import path from 'path'
+import type { RunnerConfig } from './types'
 
 const localsToCapitalize = ['name']
 const localsDefaults = {

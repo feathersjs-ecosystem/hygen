@@ -76,6 +76,15 @@ exports[`injector correctly interpret multi-line skip_if regex 1`] = `
     "
 `;
 
+exports[`injector correctly interpret multi-line skipIf regex 1`] = `
+"
+    source 'http://rubygems.org'
+    gem 'rails'
+    gem 'nokogiri'
+    gem 'httparty'
+    "
+`;
+
 exports[`injector if eof_last is false remove empty line from the end of injection body 1`] = `
 "
     source 'http://rubygems.org'
@@ -99,6 +108,27 @@ exports[`injector if eof_last is true insert empty line to injection body 1`] = 
     "
 `;
 
+exports[`injector if eofLast is false remove empty line from the end of injection body 1`] = `
+"
+    source 'http://rubygems.org'
+    gem 'rails'
+    gem 'kamikaze' # added by hygen
+    gem 'nokogiri'
+    gem 'httparty'
+    "
+`;
+
+exports[`injector if eofLast is true insert empty line to injection body 1`] = `
+"
+    source 'http://rubygems.org'
+    gem 'rails'
+    gem 'kamikaze' # added by hygen
+
+    gem 'nokogiri'
+    gem 'httparty'
+    "
+`;
+
 exports[`injector prepend top of file 1`] = `
 "    gem 'kamikaze' # added by hygen
 
@@ -117,5 +147,14 @@ exports[`injector skip_if "source" exists 1`] = `
     gem 'nokogiri'
     gem 'httparty'
 
+    "
+`;
+
+exports[`injector skipIf "source" exists 1`] = `
+"
+    source 'http://rubygems.org'
+    gem 'rails'
+    gem 'nokogiri'
+    gem 'httparty'
     "
 `;

@@ -1,8 +1,9 @@
 import fs from 'fs-extra'
 import path from 'path'
-import { ActionResult, RenderedAction, RunnerConfig } from '../types'
 import createResult from './result'
 import injector from './injector'
+
+import type { ActionResult, RenderedAction, RunnerConfig } from '../types'
 
 const injectOp = async (
   action: RenderedAction,
@@ -21,7 +22,7 @@ const injectOp = async (
 
   const absTo = path.resolve(cwd, to)
 
-  if (!(await fs.exists(absTo))) {
+  if (!fs.existsSync(absTo)) {
     logger.err(`Cannot inject to ${to}: doesn't exist.`)
     return result('error', {
       error: `Cannot inject to ${to}: doesn't exist.`,

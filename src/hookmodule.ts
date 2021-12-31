@@ -1,12 +1,12 @@
 import fs from 'fs'
 import path from 'path'
-import { RunnerArgs, HookModule, RunnerConfig } from './types'
+import type { RunnerArgs, HookModule, RunnerConfig } from './types'
 
-export default (
+export default async (
   config: RunnerConfig,
   args: RunnerArgs,
-  hooksfiles = ['prompt.js', 'index.js'],
-): HookModule => {
+  hooksfiles = ['prompt.ts', 'index.ts'],
+): Promise<HookModule> => {
   const { generator, action } = args
   const { templates } = config
   const actionfolder = path.join(templates, generator, action)
@@ -18,5 +18,7 @@ export default (
     return null
   }
 
-  return require(hooksfile)
+  const hookModule = await import(hooksfile)
+
+  return hookModule.default
 }
